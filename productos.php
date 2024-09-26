@@ -18,6 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['agregar_producto'])) 
     // Crear el producto y agregarlo a la sesión
     $producto = new Producto($codigo, $nombre, $descripcion, $precioUnitario, $cantidad);
     $_SESSION['productos'][] = $producto;
+
+    // Redirigir a la misma página para evitar la reenvío del formulario
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 
 // Función para eliminar un producto
@@ -26,6 +30,10 @@ if (isset($_GET['eliminar'])) {
     unset($_SESSION['productos'][$index]);
     // Reindexar el array para evitar huecos
     $_SESSION['productos'] = array_values($_SESSION['productos']);
+
+    // Redirigir después de eliminar para evitar problemas de recarga
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 
 // Variables para la plantilla
@@ -37,8 +45,8 @@ $contenido = '
     <label>Nombre: <input type="text" name="nombre" required></label><br>
     <label>Descripción: <input type="text" name="descripcion" required></label><br>
     <label>Precio Unitario: <input type="number" name="precio" step="0.01" required></label><br>
-    <label>Cantidad: <input type="number" name="cantidad" required></label><br>
-    <button type="submit" name="agregar_producto">Agregar Producto</button>
+    <label>Cantidad: <input type="number" name="cantidad" required min="1" value="1"></label><br>
+    <button type="submit" name="agregar_producto" class="btn btn-primary">Agregar Producto</button>
 </form>
 
 <h2>Listado de Productos</h2>
@@ -66,7 +74,10 @@ foreach ($_SESSION['productos'] as $index => $producto) {
                     <td>' . htmlspecialchars($producto->getPrecioUnitario()) . '</td>
                     <td>' . htmlspecialchars($producto->getCantidad()) . '</td>
                     <td>' . htmlspecialchars($producto->calcularTotal()) . '</td>
-                    <td><a href="?eliminar=' . $index . '" class="btn btn-danger">Eliminar</a></td>
+                    <td>
+                        <a href="?eliminar=' . $index . '" class="btn btn-danger">Eliminar</a>
+                        <a href="editar.php?editar=' . $index . '" class="btn btn-warning">Editar</a>
+                    </td>
                   </tr>';
 }
 
