@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['agregar_producto'])) 
     $producto = new Producto($codigo, $nombre, $descripcion, $precioUnitario, $cantidad);
     $_SESSION['productos'][] = $producto;
 
-    // Redirigir a la misma página para evitar la reenvío del formulario
+    // Redirigir a la misma página para evitar el reenvío del formulario
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
@@ -38,6 +38,9 @@ if (isset($_GET['eliminar'])) {
 
 // Variables para la plantilla
 $titulo = "Gestión de Productos";
+
+$pagina = "productos";//Esto sirve para que el color azulito este en el menu que estamos
+
 $contenido = '
 <h2>Agregar Producto</h2>
 <form method="POST">

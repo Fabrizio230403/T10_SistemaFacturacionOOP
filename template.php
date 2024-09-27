@@ -1,4 +1,3 @@
- <!-- template.php -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,6 +7,9 @@
     <!-- CSS de AdminLTE -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.1.0/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+ 
+
 </head>
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
@@ -31,21 +33,33 @@
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
-                        <a href="productos.php" class="nav-link">
+                        <a href="productos.php" class="nav-link <?php echo ($pagina == 'productos') ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-box"></i>
                             <p>Productos</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="clientes.php" class="nav-link">
+                        <a href="clientes.php" class="nav-link <?php echo ($pagina == 'clientes') ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-user"></i>
                             <p>Clientes</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="generarcomprobante.php" class="nav-link active">
+                        <a href="generarcomprobante.php" class="nav-link <?php echo ($pagina == 'comprobantes') ? 'active' : ''; ?>">
                             <i class="nav-icon fas fa-file-invoice"></i>
                             <p>Comprobantes</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="listar_boletas.php" class="nav-link <?php echo ($pagina == 'listar_boletas') ? 'active' : ''; ?>">
+                            <i class="nav-icon fas fa-file-invoice"></i>
+                            <p>Ver Boletas Generadas</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="listar_facturas.php" class="nav-link <?php echo ($pagina == 'listar_facturas') ? 'active' : ''; ?>">
+                            <i class="nav-icon fas fa-file-invoice"></i>
+                            <p>Ver Facturas Generadas</p>
                         </a>
                     </li>
                 </ul>
@@ -74,5 +88,21 @@
 <!-- JS de AdminLTE -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.1.0/js/adminlte.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
 </body>
 </html>
+
+<?php
+// Al final de tu archivo template.php, agrega el siguiente script para mostrar el modal
+if ($mensajeExito) {
+    // Determina si el mensaje de éxito incluye "Factura" o "Boleta"
+    $tipoComprobante = strpos($mensajeExito, 'Factura') !== false ? 'Factura' : 'Boleta';
+    echo '<script>
+        swal({
+            title: "Éxito!",
+            text: "' . $mensajeExito . '",
+            type: "success",
+            confirmButtonText: "Cerrar"
+        });
+    </script>';
+}

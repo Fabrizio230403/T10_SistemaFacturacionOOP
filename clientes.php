@@ -18,6 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['agregar_cliente'])) {
     // Crear el cliente y agregarlo a la sesión
     $cliente = new Cliente($nombre, $apellido, $dni, $direccion, $telefono);
     $_SESSION['clientes'][] = $cliente;
+
+      // Redirigir a la misma página para evitar el reenvío del formulario
+      header("Location: " . $_SERVER['PHP_SELF']);
+      exit();
 }
 
 // Función para eliminar un cliente
@@ -26,10 +30,17 @@ if (isset($_GET['eliminar'])) {
     unset($_SESSION['clientes'][$index]);
     // Reindexar el array para evitar huecos
     $_SESSION['clientes'] = array_values($_SESSION['clientes']);
+
+    // Redirigir después de eliminar para evitar problemas de recarga
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 
 // Variables para la plantilla
 $titulo = "Gestión de Clientes";
+
+$pagina = "clientes";//Esto sirve para que el color azulito este en el menu que estamos
+
 $contenido = '
 <h2>Agregar Cliente</h2>
 <form method="POST">
@@ -64,7 +75,10 @@ foreach ($_SESSION['clientes'] as $index => $cliente) {
                     <td>' . htmlspecialchars($cliente->getDni()) . '</td>
                     <td>' . htmlspecialchars($cliente->getDireccion()) . '</td>
                     <td>' . htmlspecialchars($cliente->getTelefono()) . '</td>
-                    <td><a href="?eliminar=' . $index . '" class="btn btn-danger">Eliminar</a></td>
+                    <td>
+                        <a href="?eliminar=' . $index . '" class="btn btn-danger">Eliminar</a>
+                        <a href="editarClientes.php?editar=' . $index . '" class="btn btn-warning">Editar</a>
+                    </td>
                   </tr>';
 }
 

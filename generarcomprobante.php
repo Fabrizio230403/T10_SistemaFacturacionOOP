@@ -140,40 +140,56 @@ if (isset($_POST['aumentar_cantidad'])) {
     }
     }
 
+
+    $mensajeExito = ''; // Inicializar mensaje de éxito
+
     // Si se genera el comprobante
     if (isset($_POST['generar_comprobante'])) {
         $clienteSeleccionado = isset($_SESSION['clienteSeleccionado']) ? $_SESSION['clienteSeleccionado'] : null;
         $tipoComprobante = $_POST['tipo_comprobante'];
 
-        if ($clienteSeleccionado) {
-            // Crea el documento según el tipo seleccionado
-            $documento = ($tipoComprobante === 'factura') ? new Factura($clienteSeleccionado) : new Boleta($clienteSeleccionado);
+        if(empty($_SESSION['carrito'])) {
+            echo "El carrito esta vacío. No puedes generar un comprobante sin productos.";     
+        } else { 
 
-            // Agrega los productos al documento
-            foreach ($_SESSION['carrito'] as $item) {
-                $documento->agregarProducto($item['producto'], $item['cantidad']);
+            if ($clienteSeleccionado) {
+                // Crea el documento según el tipo seleccionado
+                $documento = ($tipoComprobante === 'factura') ? new Factura($clienteSeleccionado) : new Boleta($clienteSeleccionado);
+
+                // Agrega los productos al documento
+                foreach ($_SESSION['carrito'] as $item) {
+                    $documento->agregarProducto($item['producto'], $item['cantidad']);
+                    
+                    // Aquí se reduce el stock del producto cuando se genera el comprobante
+                    $productoEncontrado = $item['producto'];
+                    $nuevoStock = $productoEncontrado->getCantidad() - $item['cantidad'];
+                    if ($nuevoStock < 0) {
+                        echo "Error: stock insuficiente para el producto " . $productoEncontrado->getNombre();
+                    } else {
+                        $productoEncontrado->setCantidad($nuevoStock); // Actualiza la cantidad del producto
+                    }
+                }
+    
+
+                // Generar el documento en PDF y guardarlo
+                $nombreArchivo = $documento->generarDocumento(); // Asegúrate de que esta función devuelva el nombre del archivo PDF
+
+                    // Establecer mensaje de éxito según el tipo de comprobante
+                $tipoComprobanteTexto = ($tipoComprobante === 'factura') ? 'Factura' : 'Boleta';
+                $mensajeExito = "$tipoComprobanteTexto generado con éxito.";
+
                 
-                   // Aquí se reduce el stock del producto cuando se genera el comprobante
-            $productoEncontrado = $item['producto'];
-            $nuevoStock = $productoEncontrado->getCantidad() - $item['cantidad'];
-            if ($nuevoStock < 0) {
-                echo "Error: stock insuficiente para el producto " . $productoEncontrado->getNombre();
+                $_SESSION['carrito'] = [];
+                $_SESSION['clienteSeleccionado'] = null;
+
+                // Reiniciar el cliente seleccionado a null
+                $clienteSeleccionado = null; 
+                
             } else {
-                $productoEncontrado->setCantidad($nuevoStock); // Actualiza la cantidad del producto
+                echo "Cliente no encontrado.";
             }
-            }
-
-            // Muestra el documento
-            echo nl2br($documento->generarDocumento());
-            $_SESSION['carrito'] = [];
-            $_SESSION['clienteSeleccionado'] = null;
-
-            echo '<br><a href="generarcomprobante.php">Generar Nuevo Comprobante</a>';
-            exit; 
-        } else {
-            echo "Cliente no encontrado.";
         }
-    }
+    } 
 
     // Si se limpia el carrito
     if (isset($_POST['limpiar_carrito'])) {
@@ -190,6 +206,8 @@ if ($clienteSeleccionado) {
 
 // Título de la página
 $titulo = "Generar Comprobante";
+
+$pagina = "comprobantes"; //Esto sirve para que el color azulito este en el menu que estamos
 
 // Contenido específico de la página
 $contenido = '
@@ -283,6 +301,8 @@ $contenido = '
         <button type="submit" name="generar_comprobante" class="btn btn-primary">Generar Comprobante</button>
     </form>
 ';
-
 // Incluye la plantilla
 include 'template.php';
+ 
+
+ 
