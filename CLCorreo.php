@@ -1,12 +1,11 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-use Dotenv\Dotenv;  // Importar la clase Dotenv para cargar el archivo .env
-
+ 
 require 'vendor/autoload.php';
 
 // Cargamos las variables del archivo credenciales.env
-$dotenv = Dotenv::createImmutable(__DIR__, 'credenciales.env'); 
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__, 'credenciales.env');
 $dotenv->load();
 
 $mail = new PHPMailer(true);
