@@ -66,6 +66,7 @@
             "install-path": "../graham-campbell/result-type"
         },
         {
+
             "name": "phpmailer/phpmailer",
             "version": "v6.9.1",
             "version_normalized": "6.9.1.0",
