@@ -1,11 +1,14 @@
 <?php
-require_once 'Cliente.php';
-require_once 'Producto.php';
-require_once 'Documento.php';
-require_once 'Boleta.php';
-require_once 'Factura.php';
+ require_once 'Modelo/Cliente.php';
+require_once 'Modelo/Producto.php';
+require_once 'Modelo/Documento.php';
+require_once 'Modelo/Boleta.php';
+require_once 'Modelo/Factura.php';
 
 session_start();
+
+// Inicializar mensaje de éxito para el modal
+$mensajeExito = '';  
 
 // Verifica si hay productos y clientes en la sesión
 if (!isset($_SESSION['productos']) || !isset($_SESSION['clientes'])) {
@@ -21,7 +24,7 @@ if (!isset($_SESSION['carrito'])) {
 // Inicializa el cliente seleccionado
 $clienteSeleccionado = null;
 
-// Procesa el formulario al enviar
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Si se busca un cliente
     if (isset($_POST['buscar_cliente'])) {
@@ -34,39 +37,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    if (isset($_POST['buscar_producto'])) {
+        $codigoBuscar = $_POST['codigo_producto_buscar'];
+        $productoSeleccionado = null; // Inicializa en null cada vez que se busca
+        foreach ($_SESSION['productos'] as $producto) {
+            if ($producto->getCodigo() === $codigoBuscar) {
+                $productoSeleccionado = $producto;
+                break;
+            }
+        }
+    }
+
     if (isset($_POST['eliminar_producto'])) {
         $indice = $_POST['indice_eliminar'];
         // Remueve el producto del carrito en la posición especificada
         array_splice($_SESSION['carrito'], $indice, 1);
+        
     }
 
-  
-
-    // Maneja el aumento de la cantidad
+    // Manejamos el aumento de la cantidad
 if (isset($_POST['aumentar_cantidad'])) {
     $indice = $_POST['indice_actualizar'];
     
-    // Obtén el producto actual del carrito
+    // Obtener el producto actual del carrito
     $producto = $_SESSION['carrito'][$indice]['producto'];
     
-    // Verifica si la cantidad actual es menor que el stock del producto
-    if ($_SESSION['carrito'][$indice]['cantidad'] < $producto->getCantidad()) { // Asegúrate de que 'getCantidad()' esté implementado en tu clase
-        $_SESSION['carrito'][$indice]['cantidad']++; // Aumenta la cantidad
+    // Verificar si la cantidad actual es menor que el stock del producto
+    if ($_SESSION['carrito'][$indice]['cantidad'] < $producto->getCantidad()) { // Añadir 'getCantidad()' de mi clase Producto
+        $_SESSION['carrito'][$indice]['cantidad']++; // Aumentar la cantidad
         $precio = $producto->getPrecioUnitario();
-        $_SESSION['carrito'][$indice]['subtotal'] = $precio * $_SESSION['carrito'][$indice]['cantidad']; // Recalcula el subtotal
+        $_SESSION['carrito'][$indice]['subtotal'] = $precio * $_SESSION['carrito'][$indice]['cantidad']; // Recalcular el subtotal
     } else {
         echo "No puedes aumentar más la cantidad. Stock máximo alcanzado.";
     }
 }
 
-     // Maneja la disminución de la cantidad
+     // Manejamos la disminución de la cantidad
      if (isset($_POST['disminuir_cantidad'])) {
         $indice = $_POST['indice_actualizar'];
         if ($_SESSION['carrito'][$indice]['cantidad'] > 1) {
-            $_SESSION['carrito'][$indice]['cantidad']--; // Disminuye la cantidad si es mayor a 1
+            $_SESSION['carrito'][$indice]['cantidad']--; // Disminuimos la cantidad si es mayor a 1
             $producto = $_SESSION['carrito'][$indice]['producto'];
             $precio = $producto->getPrecioUnitario();
-            $_SESSION['carrito'][$indice]['subtotal'] = $precio * $_SESSION['carrito'][$indice]['cantidad']; // Recalcula el subtotal
+            $_SESSION['carrito'][$indice]['subtotal'] = $precio * $_SESSION['carrito'][$indice]['cantidad']; // Recalcular el subtotal
         }
     }
 
@@ -117,10 +130,10 @@ if (isset($_POST['aumentar_cantidad'])) {
                 }
             }
 
-            // Si el producto no estaba en el carrito, lo agrega
+            // Si el producto no estaba en el carrito, agregarlo
             if (!$productoYaEnCarrito) {
                 // Calcular el precio y subtotal
-                $precio = $productoEncontrado->getPrecioUnitario(); // Asumiendo que tienes un método getPrecio()
+                $precio = $productoEncontrado->getPrecioUnitario(); // Añadir el método getPrecioUnitario() de mi clase Producto
                 $subtotal = $precio * $cantidad;
 
                 $_SESSION['carrito'][] = [
@@ -141,8 +154,6 @@ if (isset($_POST['aumentar_cantidad'])) {
     }
 
 
-    $mensajeExito = ''; // Inicializar mensaje de éxito
-
     // Si se genera el comprobante
     if (isset($_POST['generar_comprobante'])) {
         $clienteSeleccionado = isset($_SESSION['clienteSeleccionado']) ? $_SESSION['clienteSeleccionado'] : null;
@@ -153,14 +164,14 @@ if (isset($_POST['aumentar_cantidad'])) {
         } else { 
 
             if ($clienteSeleccionado) {
-                // Crea el documento según el tipo seleccionado
+                // Crea el documento según el tipo de comprobante que elija
                 $documento = ($tipoComprobante === 'factura') ? new Factura($clienteSeleccionado) : new Boleta($clienteSeleccionado);
 
                 // Agrega los productos al documento
                 foreach ($_SESSION['carrito'] as $item) {
                     $documento->agregarProducto($item['producto'], $item['cantidad']);
                     
-                    // Aquí se reduce el stock del producto cuando se genera el comprobante
+                    // Aca reducimos el stock del producto cuando se genera el comprobante
                     $productoEncontrado = $item['producto'];
                     $nuevoStock = $productoEncontrado->getCantidad() - $item['cantidad'];
                     if ($nuevoStock < 0) {
@@ -170,18 +181,16 @@ if (isset($_POST['aumentar_cantidad'])) {
                     }
                 }
     
-
                 // Generar el documento en PDF y guardarlo
-                $nombreArchivo = $documento->generarDocumento(); // Asegúrate de que esta función devuelva el nombre del archivo PDF
+                $nombreArchivo = $documento->generarDocumento();
 
-                    // Establecer mensaje de éxito según el tipo de comprobante
+                // Establecer mensaje de éxito según el tipo de comprobante
                 $tipoComprobanteTexto = ($tipoComprobante === 'factura') ? 'Factura' : 'Boleta';
                 $mensajeExito = "$tipoComprobanteTexto generado con éxito.";
 
                 
                 $_SESSION['carrito'] = [];
                 $_SESSION['clienteSeleccionado'] = null;
-
                 // Reiniciar el cliente seleccionado a null
                 $clienteSeleccionado = null; 
                 
@@ -191,7 +200,7 @@ if (isset($_POST['aumentar_cantidad'])) {
         }
     } 
 
-    // Si se limpia el carrito
+    // Limpieza del carrito
     if (isset($_POST['limpiar_carrito'])) {
         $_SESSION['carrito'] = []; 
     }
@@ -204,14 +213,16 @@ if ($clienteSeleccionado) {
     $clienteSeleccionado = isset($_SESSION['clienteSeleccionado']) ? $_SESSION['clienteSeleccionado'] : null;
 }
 
-// Título de la página
+ 
 $titulo = "Generar Comprobante";
 
-$pagina = "comprobantes"; //Esto sirve para que el color azulito este en el menu que estamos
+$pagina = "comprobantes";  
 
-// Contenido específico de la página
+ 
 $contenido = '
-    <h2 class="mt-4">Buscar Cliente</h2>
+<div class="row">
+    <div class="col-md-6"> <!-- Columna izquierda para buscar cliente y mostrar datos -->
+    <h3 class="mb-3 mt-2">Buscar Cliente</h3>
     <form method="POST" class="form-inline mb-3">
         <div class="input-group">
             <input type="text" class="form-control" name="dni_buscar" placeholder="DNI del Cliente" required>
@@ -221,10 +232,11 @@ $contenido = '
         </div>
     </form>
 
-    <h2>Datos del Cliente</h2>
+   
     ' . ($clienteSeleccionado ? '
-        <div class="card mb-3">
+        <div class="card col-md-10 mb-3 mt-3">
             <div class="card-body">
+                <h5 class="text-center"><strong>Datos del Cliente</strong></h5><br>
                 <p><strong>DNI:</strong> ' . $clienteSeleccionado->getDni() . '</p>
                 <p><strong>Nombre:</strong> ' . $clienteSeleccionado->getNombre() . '</p>
                 <p><strong>Apellido:</strong> ' . $clienteSeleccionado->getApellido() . '</p>
@@ -233,9 +245,35 @@ $contenido = '
             </div>
         </div>
     ' : '<p>No se ha seleccionado ningún cliente.</p>') . '
+    </div>
 
-    <h2 class="mt-4">Agregar Productos</h2>
-    <form method="POST" class="form-inline mb-3">
+    <div class="col-md-6">
+    <h3 class="mb-3 mt-2">Buscar Producto</h3>
+     <form method="POST" class="form-inline mb-3">
+        <div class="input-group">
+            <input type="text" class="form-control" name="codigo_producto_buscar" placeholder="Código del Producto" required>
+            <div class="input-group-append">
+                <button type="submit" name="buscar_producto" class="btn btn-primary">Buscar Producto</button>
+            </div>
+        </div>
+    </form>
+    
+       
+        ' . (isset($productoSeleccionado) ? '
+        <div class="card col-md-10 mb-3 mt-3">
+            <div class="card-body">
+              <h5 class="text-center"><strong>Datos del Producto</strong></h5><br>
+                <p><strong>Código:</strong> ' . $productoSeleccionado->getCodigo() . '</p>
+                <p><strong>Nombre:</strong> ' . $productoSeleccionado->getNombre() . '</p>
+                <p><strong>Descripción:</strong> ' . $productoSeleccionado->getDescripcion() . '</p>
+                <p><strong>Precio:</strong> S/. ' . number_format($productoSeleccionado->getPrecioUnitario(), 2) . '</p>
+                <p><strong>Cantidad:</strong> ' . $productoSeleccionado->getCantidad() . '</p>
+            </div>
+        </div>
+        ' : '') . '
+     
+    <h3 class="mb-3 mt-4">Agregar Producto</h3>
+      <form method="POST" class="form-inline mb-3">
         <div class="form-group mr-2">
             <input type="text" class="form-control" name="codigo" placeholder="Código del Producto" required>
         </div>
@@ -246,7 +284,10 @@ $contenido = '
         <button type="submit" name="agregar_comprobante" class="btn btn-success">Agregar Producto</button>
     </form>
 
-    <h2 class="mt-4">Carrito de Compras</h2>
+    </div>
+</div>
+
+    <h3 class="mt-4">Carrito de Compras</h3>
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -290,10 +331,11 @@ $contenido = '
         <button type="submit" name="limpiar_carrito" class="btn btn-danger">Limpiar Carrito</button>
     </form>
 
-    <h2 class="mt-4">Generar Comprobante</h2>
+    <h3 class="mt-4">Generar Comprobante</h3>
     <form method="POST" class="form-inline mb-3">
         <div class="form-group mr-2">
             <select name="tipo_comprobante" class="form-control" required>
+                <option value="">Elige el tipo de comprobante</option>
                 <option value="boleta">Boleta</option>
                 <option value="factura">Factura</option>
             </select>
@@ -301,8 +343,29 @@ $contenido = '
         <button type="submit" name="generar_comprobante" class="btn btn-primary">Generar Comprobante</button>
     </form>
 ';
-// Incluye la plantilla
+
+ 
 include 'template.php';
+
+  //  Script para mostrar el modal
+  if ($mensajeExito) {
+    // Determina si el mensaje de éxito incluye "Factura" o "Boleta"
+    $tipoComprobante = strpos($mensajeExito, 'Factura') !== false ? 'Factura' : 'Boleta';
+    echo '<script>
+        swal({
+            title: "Éxito!",
+            text: "' . $mensajeExito . '",
+            type: "success",
+            buttons: {
+                confirm: {
+                    text: "Cerrar",
+                    className: "btn-primary",
+                }
+            },
+            confirmButtonColor: "#007bff" // Cambia el color del botón a azul
+        });
+    </script>';
+}
  
 
  

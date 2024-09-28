@@ -21,7 +21,7 @@ abstract class Persona {
 
  
 
-    // Método abstracto que debe ser implementado en las clases derivadas
+    // Método abstracto
     abstract public function mostrarInfo();
 }
 ?>

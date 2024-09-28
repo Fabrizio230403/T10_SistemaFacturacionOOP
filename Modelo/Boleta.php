@@ -25,15 +25,15 @@ class Boleta extends Documento {
         $pdf->Ln(10);
 
         // Configuración de colores para la tabla
-        $pdf->SetFillColor(230, 230, 230); // Color de fondo para los encabezados
-        $pdf->SetTextColor(0); // Color de texto
-        $pdf->SetDrawColor(128, 128, 128); // Color de bordes
+        $pdf->SetFillColor(230, 230, 230); 
+        $pdf->SetTextColor(0);  
+        $pdf->SetDrawColor(128, 128, 128);  
 
         // Encabezados de la tabla de productos
         $pdf->SetFont('Arial', 'B', 12);
         $pdf->Cell(20, 10, utf8_decode('Código'), 1, 0, 'C', true);
-        $pdf->Cell(60, 10, 'Nombre', 1, 0, 'C', true);
-        $pdf->Cell(50, 10, utf8_decode('Descripción'), 1, 0, 'C', true);
+        $pdf->Cell(40, 10, 'Nombre', 1, 0, 'C', true);
+        $pdf->Cell(70, 10, utf8_decode('Descripción'), 1, 0, 'C', true);
         $pdf->Cell(25, 10, 'Precio', 1, 0, 'C', true);
         $pdf->Cell(15, 10, 'Cant.', 1, 0, 'C', true);
         $pdf->Cell(25, 10, 'Subtotal', 1, 1, 'C', true);
@@ -46,8 +46,8 @@ class Boleta extends Documento {
             $subtotal = number_format($producto->getPrecioUnitario() * $cantidad, 2);
 
             $pdf->Cell(20, 10, $producto->getCodigo(), 1);
-            $pdf->Cell(60, 10, utf8_decode($producto->getNombre()), 1);
-            $pdf->Cell(50, 10, utf8_decode($producto->getDescripcion()), 1);
+            $pdf->Cell(40, 10, utf8_decode($producto->getNombre()), 1);
+            $pdf->Cell(70, 10, utf8_decode($producto->getDescripcion()), 1);
             $pdf->Cell(25, 10, number_format($producto->getPrecioUnitario(), 2), 1, 0, 'R');
             $pdf->Cell(15, 10, $cantidad, 1, 0, 'C');
             $pdf->Cell(25, 10, $subtotal, 1, 1, 'R');
@@ -59,11 +59,10 @@ class Boleta extends Documento {
         $pdf->Cell(170, 10, 'TOTAL: ', 0, 0, 'R');
         $pdf->Cell(25, 10, number_format($this->total, 2), 1, 1, 'R');
 
-        // Guardar el documento en un archivo PDF
+        // Guardar en archivo PDF
         $nombreArchivo = 'boleta_' . date('Ymd_His') . '.pdf';
         $pdf->Output('F', 'boletas/' . $nombreArchivo);
 
-        // Devuelve el nombre del archivo
         return $nombreArchivo; 
     }
 }

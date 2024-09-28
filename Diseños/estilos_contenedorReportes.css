@@ -1,0 +1,83 @@
+ /* Contenedor de las facturas */
+.facturas-container {
+    background-color: #cdcdcd;
+    border: none;
+    border-radius: 8px;
+    margin: 15px 0;
+    padding: 15px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Cabecera de las facturas */
+.factura-header {
+    margin: 0;
+    padding: 15px;
+    background-color: #f0f4f8;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.factura-header:hover {
+    background-color: #e1e8ed;
+    transform: scale(1.02);
+}
+
+/* Flecha que indica despliegue */
+.arrow {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+/* Lista de facturas */
+.factura-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+/* Ítems de la factura */
+.factura-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    margin: 10px 0;
+    background-color: #efefef;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(179, 32, 32, 0.05);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.factura-item:hover {
+    background-color: #f9fafb;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Icono de PDF */
+.factura-icon {
+    width: 24px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+/* Enlace a las facturas */
+.factura-item a {
+    text-decoration: none;
+    color: #2270c4;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.factura-item a:hover {
+    text-decoration: underline;
+}

@@ -1,7 +1,7 @@
 <?php
 require_once 'Cliente.php';
 require_once 'Producto.php';
-require('fpdf/fpdf.php'); // Asegúrate de incluir FPDF
+require('fpdf/fpdf.php'); //Incluir la carpeta FPDF, para obtener el diseño de nuestro PDF
 
 abstract class Documento {
     protected $cliente;

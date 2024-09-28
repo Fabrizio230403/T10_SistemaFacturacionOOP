@@ -15,7 +15,6 @@ class Cliente extends Persona {
         return "Cliente: $this->nombre $this->apellido, DNI: $this->dni, Dirección: $this->direccion, Teléfono: $this->telefono";
     }
 
-    // Getters y Setters
     public function getDireccion() { return $this->direccion; }
     public function setDireccion($direccion) { $this->direccion = $direccion; }
 
