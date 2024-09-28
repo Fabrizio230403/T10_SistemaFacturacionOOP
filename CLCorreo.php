@@ -1,8 +1,13 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use Dotenv\Dotenv;  // Importar la clase Dotenv para cargar el archivo .env
 
 require 'vendor/autoload.php';
+
+// Cargamos las variables del archivo credenciales.env
+$dotenv = Dotenv::createImmutable(__DIR__, 'credenciales.env'); 
+$dotenv->load();
 
 $mail = new PHPMailer(true);
 
@@ -18,17 +23,17 @@ $tipo = $_POST['tipo']; // 'factura' o 'boleta'
 $mensajeCompleto = "Atentamente: " . $nombre . "\nContacto: " . $telefono;
 
 try {
-    // Configuración del servidor SMTP
-    $mail->isSMTP();
-    $mail->Host       = 'smtp.gmail.com';
-    $mail->SMTPAuth   = true;
-    $mail->Username   = 'estefano.jurado.c52@gmail.com';
-    $mail->Password   = 'nsmu wleg wogy hyip'; // Contraseña de aplicación
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = 587;
+     // Configuración del servidor SMTP usando las variables del archivo .env
+     $mail->isSMTP();
+     $mail->Host       = $_ENV['SMTP_HOST'];
+     $mail->SMTPAuth   = true;
+     $mail->Username   = $_ENV['SMTP_USER'];  // Correo de SMTP desde .env
+     $mail->Password   = $_ENV['SMTP_PASS'];  // Contraseña desde .env
+     $mail->SMTPSecure = $_ENV['SMTP_SECURE']; // tls o ssl según tu servidor
+     $mail->Port       = $_ENV['SMTP_PORT'];
 
     // Destinatarios
-    $mail->setFrom('estefano.jurado.c52@gmail.com', 'Fabrizio Jurado');
+    $mail->setFrom($_ENV['SMTP_USER'], 'Fabrizio Jurado'); // Usamos el correo desde el .env
     $mail->addAddress($destinatario);
 
      
@@ -41,7 +46,7 @@ try {
 
     // Contenido del correo
     $mail->isHTML(false);
-    $mail->CharSet = 'UTF-8'; // Establecer el conjunto de caracteres
+    $mail->CharSet = 'UTF-8';  
     $mail->Subject = $asunto;
     $mail->Body    = $mensajeCompleto;
 
