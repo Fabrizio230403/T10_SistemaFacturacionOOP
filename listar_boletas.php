@@ -66,7 +66,8 @@ include 'template.php';
                         <input type="text" class="form-control" name="asunto" required>
                     </div>
                     <div class="form-group" style="text-align: right;">
-                        <button type="submit" class="btn btn-primary" style="background-color: #007bff; height: 38px; padding: 0 20px;">Enviar Reporte</button>
+                        <button type="submit" class="btn btn-primary"
+                         style="background-color: #007bff; height: 38px; padding: 0 20px;">Enviar Reporte</button>
                     </div>
                 </form>
             </div>

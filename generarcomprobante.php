@@ -330,7 +330,6 @@ $contenido = '
     <form method="POST">
         <button type="submit" name="limpiar_carrito" class="btn btn-danger">Limpiar Carrito</button>
     </form>
-
     <h3 class="mt-4">Generar Comprobante</h3>
     <form method="POST" class="form-inline mb-3">
         <div class="form-group mr-2">
